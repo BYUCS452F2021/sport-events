@@ -19,9 +19,9 @@ const routes = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   }, 
   {
-    path: '/event-panel', 
-    name: 'event_panel', 
-    component: () => import('../views/Event_Panel.vue')
+    path: '/login', 
+    name: 'Login', 
+    component: () => import('../views/Login.vue')
   }
 ]
 
