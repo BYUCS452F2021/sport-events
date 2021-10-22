@@ -16,13 +16,13 @@ export default {
   name: 'Home',
   components: {
   },
-  
+
   data() {
       return {
         items: [
           { sport_name: '', date: '', time: '', difficulty_level: '', players_needed: '' },
-          
-        ]
+        ],
+        text: "",
       }
     }
 }

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Manage from '../views/Manage.vue'
-import Joined from '../views/Joined.vue'
+import Joined from '../views/Joined'
 
 Vue.use(VueRouter)
 
@@ -19,25 +19,23 @@ const routes = [
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }, 
+  },
   {
-    path: '/login', 
-    name: 'Login', 
+    path: '/login',
+    name: 'Login',
     component: () => import('../views/Login.vue')
   },
   {
-    path: '/manage', 
-    name: 'Manage', 
+    path: '/manage',
+    name: 'Manage',
     component: Manage
   },
   {
-    path: '/joined', 
-    name: 'Joined', 
+    path: '/joined',
+    name: 'Joined',
     component: Joined
   }
 ]
-
-
 
 const router = new VueRouter({
   mode: 'history',

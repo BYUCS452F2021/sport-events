@@ -29,14 +29,15 @@
 
 <script>
 export default {
+    name: "Login",
     data() {
         return {
             form: {
-                username: '', 
+                username: '',
                 password: ''
             }
         }
-    }, 
+    },
     methods: {
         onSubmit(event) {
             event.preventDefault();
