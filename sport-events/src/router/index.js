@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+import Manage from '../views/Manage.vue'
+import Joined from '../views/Joined.vue'
 
 Vue.use(VueRouter)
 
@@ -22,8 +24,20 @@ const routes = [
     path: '/login', 
     name: 'Login', 
     component: () => import('../views/Login.vue')
+  },
+  {
+    path: '/manage', 
+    name: 'Manage', 
+    component: Manage
+  },
+  {
+    path: '/joined', 
+    name: 'Joined', 
+    component: Joined
   }
 ]
+
+
 
 const router = new VueRouter({
   mode: 'history',
