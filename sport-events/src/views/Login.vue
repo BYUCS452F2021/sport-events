@@ -21,7 +21,7 @@
                 type="submit">
                     submit
                 </b-button>
-                <p id="link">Don't have an account? Create one <a href="#">here</a></p>
+                <p id="link">Don't have an account? Create one <a href="/create-account">here</a></p>
             </b-form>
         </b-card>
     </div>
@@ -54,6 +54,7 @@ export default {
     }
     #form-card {
         margin-top: 10vw;
+        box-shadow: 5px 10px 8px #888888;
     }
     .form-input {
         margin: 20px 0;
