@@ -15,12 +15,16 @@ export default {
   name: 'Home',
   components: {
   },
-  
+  created() {
+    if (!this.$root.$data.user) {
+      this.$router.push("/")
+    }
+  },
   data() {
       return {
         items: [
           { sport_name: '', date: '', time: '', difficulty_level: '', comment: '', decision: '' },
-          
+
         ]
       }
     }

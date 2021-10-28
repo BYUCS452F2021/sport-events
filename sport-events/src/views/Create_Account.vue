@@ -24,7 +24,7 @@
                 type="password"
                 placeholder="Confirm password"
                 v-model="form.confirm_password"
-                
+
                 class="form-input"
                 required>
                 </b-form-input>
@@ -50,10 +50,11 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
     name: 'create_account',
     components: {
-    }, 
+    },
     data() {
         return {
             valid: true,
@@ -63,11 +64,11 @@ export default {
                 password: '',
                 confirm_password: '',
                 email: ''
-            }, 
+            },
             difficulty_options: [
                 {value: null, text: 'Please select an option', disabled: true},
-                {value: 'beginner', text: 'Beginner'}, 
-                {value: 'intermediate', text: 'Intermediate'}, 
+                {value: 'beginner', text: 'Beginner'},
+                {value: 'intermediate', text: 'Intermediate'},
                 {value: 'advanced', text: 'Advanced'}
             ]
         }
@@ -75,7 +76,19 @@ export default {
     methods: {
         onSubmit(event) {
             event.preventDefault();
-            alert(JSON.stringify(this.form));
+            try {
+              let response = axios.post("/login", {
+                username: this.form.username,
+                password: this.form.password,
+                email: this.form.email
+               });
+
+               this.$root.$data.user = response.data
+               this.$router.push("/");
+            } catch(error) {
+              console.log(error)
+            }
+
       },
       checkPassword() {
           console.log("here");

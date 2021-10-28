@@ -31,7 +31,7 @@
                   <em>User</em>
                 </template>
                 <b-dropdown-item href="#">Profile</b-dropdown-item>
-                <b-dropdown-item href="#">Sign Out</b-dropdown-item>
+                <b-dropdown-item href="#" @click="logout">Sign Out</b-dropdown-item>
               </b-nav-item-dropdown>
             </b-navbar-nav>
           </b-collapse>
@@ -41,6 +41,17 @@
   </div>
 </template>
 
+<script>
+export default {
+  methods: {
+    logout() {
+      this.$root.$data.user = undefined;
+    },
+  },
+}
+
+</script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -48,6 +59,10 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+  color: white !important;
 }
 
 

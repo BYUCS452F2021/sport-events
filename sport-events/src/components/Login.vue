@@ -21,13 +21,16 @@
                 type="submit">
                     submit
                 </b-button>
-                <p id="link">Don't have an account? Create one <a href="/create-account">here</a></p>
+                <div class="link-container">>
+                  <p id="link">Don't have an account? Create one <a href="/create-account">here</a></p>
+              </div>
             </b-form>
         </b-card>
     </div>
 </template>
 
 <script>
+import axios from "axios";
 export default {
     name: "Login",
     data() {
@@ -41,7 +44,18 @@ export default {
     methods: {
         onSubmit(event) {
             event.preventDefault();
-            alert(JSON.stringify(this.form));
+            try {
+              let response = axios.post("/login", {
+                username: this.form.username,
+                password: this.form.password
+               });
+
+               this.$root.$data.user = response.data
+               this.$router.push("/");
+            } catch(error) {
+              console.log(error)
+            }
+
       },
     }
 }
@@ -65,5 +79,9 @@ export default {
     }
     #link {
         position: absolute;
+    }
+    .link-container {
+      display: flex;
+      justify-content: center;
     }
 </style>

@@ -30,7 +30,7 @@
                 class="form-input">
                 </b-form-timepicker>
 
-                <b-form-select 
+                <b-form-select
                 id="difficulty_level"
                 v-model="form.difficulty_level"
                 :options="difficulty_options"
@@ -57,23 +57,28 @@
 
 <script>
 export default {
-    name: 'Create', 
+    name: 'Create',
     components: {
-    }, 
+    },
+    created() {
+      if (!this.$root.$data.user) {
+        this.$router.push("/")
+      }
+    },
     data() {
         return {
             form: {
                 sport_name: '',
-                city: '', 
+                city: '',
                 date: '',
-                time: '', 
-                difficulty_level: null, 
+                time: '',
+                difficulty_level: null,
                 players_needed: ''
-            }, 
+            },
             difficulty_options: [
                 {value: null, text: 'Please select an option', disabled: true},
-                {value: 'beginner', text: 'Beginner'}, 
-                {value: 'intermediate', text: 'Intermediate'}, 
+                {value: 'beginner', text: 'Beginner'},
+                {value: 'intermediate', text: 'Intermediate'},
                 {value: 'advanced', text: 'Advanced'}
             ]
         }
