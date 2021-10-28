@@ -3,6 +3,8 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Manage from '../views/Manage.vue'
 import Joined from '../views/Joined'
+import Create from '../views/Create.vue'
+import Create_Account from '../views/Create_Account.vue'
 
 Vue.use(VueRouter)
 
@@ -23,7 +25,7 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../views/Login.vue')
+    component: () => import('../components/Login.vue')
   },
   {
     path: '/manage',
@@ -34,6 +36,16 @@ const routes = [
     path: '/joined',
     name: 'Joined',
     component: Joined
+  }, 
+  {
+    path: '/create', 
+    name: 'Create', 
+    component: Create
+  }, 
+  {
+    path: '/create-account',
+    name: 'Create_Account',
+    component: Create_Account
   }
 ]
 

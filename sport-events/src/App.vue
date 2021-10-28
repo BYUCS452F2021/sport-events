@@ -10,7 +10,7 @@
             <b-navbar-nav>
               <b-nav-item to="/">Upcoming</b-nav-item>
               <b-nav-item to="/joined">Joined</b-nav-item>
-              <b-nav-item href="#">Create</b-nav-item>
+              <b-nav-item to="/create">Create</b-nav-item>
               <b-nav-item to="/manage">Manage</b-nav-item>
 
             </b-navbar-nav>
