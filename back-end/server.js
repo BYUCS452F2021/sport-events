@@ -1,5 +1,18 @@
 const express = require('express');
 const bodyParser = require("body-parser");
+const mysql = require('mysql');
+
+let con = mysql.createConnection({
+  host: "localhost",
+  user: "sport-events",
+  password: "CS452",
+  database: 'sportevents'
+});
+
+con.connect((err) => {
+  if(err) throw err;
+  console.log("connected to mysql db");
+});
 
 const app = express();
 app.use(bodyParser.json());
