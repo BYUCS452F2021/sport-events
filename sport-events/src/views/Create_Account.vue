@@ -12,6 +12,7 @@
 
                 <b-form-input
                 id="password"
+                type="password"
                 v-model="form.password"
                 placeholder="Password"
                 class="form-input"
@@ -20,15 +21,17 @@
 
                 <b-form-input
                 id="check_password"
+                type="password"
                 placeholder="Confirm password"
-                v-model="check_password"
-                :state="isValid"
+                v-model="form.confirm_password"
+                
                 class="form-input"
                 required>
                 </b-form-input>
 
                 <b-form-input
                 id="email"
+                type="email"
                 v-model="form.email"
                 placeholder="Email"
                 class="form-input"
@@ -38,8 +41,7 @@
                 <b-button
                 variant="primary"
                 id="btn"
-                type="submit"
-                :disabled="isDisabled">
+                type="submit">
                     submit
                 </b-button>
             </b-form>
@@ -59,6 +61,7 @@ export default {
             form: {
                 username: '',
                 password: '',
+                confirm_password: '',
                 email: ''
             }, 
             difficulty_options: [
@@ -85,10 +88,10 @@ export default {
     },
     computed: {
         isDisabled() {
-            if (this.valid) {
-                return '';
+            if (this.form.check_password === this.form.password) {
+                return false;
             }
-            return 'disabled';
+            return true;
         },
         isValid() {
             return this.checkPassword();
