@@ -12,6 +12,50 @@ let con = mysql.createConnection({
 con.connect((err) => {
   if(err) throw err;
   console.log("connected to mysql db");
+
+  let createTables = `CREATE TABLE IF NOT EXISTS user_info(
+      user_id              INT unsigned NOT NULL AUTO_INCREMENT,
+      username             VARCHAR(150) NOT NULL,               
+      password             VARCHAR(150) NOT NULL,               
+      email                VARCHAR(150) NOT NULL,               
+      PRIMARY KEY     (user_id)                                 
+    );`;
+  let createTables2 = `
+    CREATE TABLE IF NOT EXISTS sport_events(
+      event_id INT unsigned NOT NULL AUTO_INCREMENT,
+      creator_id            INT unsigned NOT NULL,              
+      sport_name            VARCHAR(150) NOT NULL,               
+      city                  VARCHAR(150) NOT NULL,               
+      time              TIME NOT NULL,               
+      date              DATE NOT NULL,                 
+      difficulty_lvl        VARCHAR(150) NOT NULL,    
+      players_needed        INT unsigned NOT NULL,    
+      PRIMARY KEY     (event_id)                                 
+    );`;
+  let createTables3 = `
+    CREATE TABLE IF NOT EXISTS join_event(
+      request_id           INT unsigned NOT NULL AUTO_INCREMENT,
+      event_id             INT unsigned NOT NULL,               
+      user_id              INT unsigned NOT NULL,               
+      accepted         VARCHAR(150) NOT NULL,                
+      PRIMARY KEY     (request_id)                           
+    );`;
+
+  con.query(createTables, function(err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    }
+  });
+  con.query(createTables2, function(err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    }
+  });
+  con.query(createTables3, function(err, results, fields) {
+    if (err) {
+      console.log(err.message);
+    }
+  });
 });
 
 const app = express();
