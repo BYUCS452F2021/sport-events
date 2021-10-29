@@ -35,8 +35,7 @@ con.connect((err) => {
     CREATE TABLE IF NOT EXISTS join_event(
       request_id           INT unsigned NOT NULL AUTO_INCREMENT,
       event_id             INT unsigned NOT NULL,               
-      user_id              INT unsigned NOT NULL,               
-      accepted         VARCHAR(150) NOT NULL,                
+      user_id              INT unsigned NOT NULL,      
       PRIMARY KEY     (request_id)                           
     );`;
 
@@ -94,24 +93,6 @@ let fakeEvents = [
     difficulty: "hard",
     playersNeeded: 11
   },
-];
-
-let fakeMembership = [
-  {
-    eventID: 1,
-    userID: 1,
-    approved: true
-  },
-  {
-    eventID: 1,
-    userID: 2,
-    approved: true
-  },
-  {
-    eventID: 1,
-    userID: 3,
-    approved: false
-  }
 ];
 
 //register
@@ -174,7 +155,7 @@ app.get('/upcoming', async (req, res) => {
     for(record of results) {
       events.push({
         eventID: record.event_id,
-        creatorUsername: record.username,
+        creator: record.username,
         sport: record.sport_name,
         city: record.city,
         dateTime: record.datetime,
@@ -190,7 +171,30 @@ app.get('/upcoming', async (req, res) => {
 app.get('/joined', async (req, res) => {
   //todo: get events based on event membership table (approved only)
   let userID = req.body.userID;
-  res.send(fakeEvents);
+  let stmt = `SELECT sport_events.*, user_info.username FROM join_event 
+                JOIN sport_events ON join_event.event_id=sport_events.event_id 
+                JOIN user_info ON sport_events.creator_id=user_info.user_id
+                WHERE join_event.user_id = ?;`;
+  let values = [userID];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      res.status(400).send({message: "error querying db for my joined events"});
+      return;
+    }
+    let events = []
+    for(record of results) {
+      events.push({
+        eventID: record.event_id,
+        creator: record.username,
+        sport: record.sport_name,
+        city: record.city,
+        dateTime: record.datetime,
+        difficulty: record.difficulty_lvl,
+        playersNeeded: record.players_needed
+      })
+    }
+    res.send(events)
+  });
 });
 
 //create new event
@@ -212,7 +216,37 @@ app.post('/event', async (req, res) => {
       res.status(400).send({message: "error inserting event into db"});
       return;
     }
-    res.sendStatus(200);
+    let event_id = results.insertId
+    create_join_event_record(res, event_id, newEvent.creatorID);
+  });
+  
+});
+
+//get all events created by a particular user
+app.get('/event', async (req, res) => {
+  let userID = req.body.userID;
+  let stmt = `SELECT sport_events.*, user_info.username FROM sport_events 
+                JOIN user_info ON sport_events.creator_id=user_info.user_id
+                WHERE sport_events.creator_id = ?;`;
+  let values = [userID];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      res.status(400).send({message: "error querying db for events created by user"});
+      return;
+    }
+    let events = []
+    for(record of results) {
+      events.push({
+        eventID: record.event_id,
+        creator: record.username,
+        sport: record.sport_name,
+        city: record.city,
+        dateTime: record.datetime,
+        difficulty: record.difficulty_lvl,
+        playersNeeded: record.players_needed
+      })
+    }
+    res.send(events)
   });
 });
 
@@ -227,33 +261,81 @@ app.put('/event/:id', async (req, res) => {
     difficulty: req.body.difficulty,
     playersNeeded: req.body.playersNeeded
   };
-  res.send();
+  let stmt = `UPDATE sport_events SET
+                players_needed = ?,
+                sport_name = ?,
+                city = ?,
+                datetime = ?,
+                difficulty_lvl = ?
+                WHERE event_id = ?;`;
+  let values = [updatedEvent.playersNeeded, updatedEvent.sport, updatedEvent.city, updatedEvent.dateTime, updatedEvent.difficulty, eventID];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      console.log(err)
+      res.status(400).send({message: "error updating event"});
+      return;
+    }
+    res.sendStatus(200);
+  });
 });
+
+let create_join_event_record = (res, eventID, userID) => {
+  let stmt = 'INSERT INTO join_event (event_id, user_id) VALUES(?,?);';
+  let values = [eventID, userID];
+  con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      console.log(err)
+      res.status(400).send({message: "error inserting event_join into db"});
+      return;
+    }
+    res.sendStatus(200);
+  });
+}
 
 //request to join event
 app.post('/membership', async (req, res) => {
   let newMemberRequest = {
     eventID: req.body.eventID,
     userID: req.body.userID,
-    approved: false
   };
-  res.send();
+  create_join_event_record(res, newMemberRequest.eventID, newMemberRequest.userID)
 });
 
 //manage event membership
-app.put('/membership', async (req, res) => {
+app.delete('/membership', async (req, res) => {
   let eventID = req.body.eventID;
   let userID = req.body.userID;
-  let approved = req.body.approved;
-  //todo: update the membership with the new approval status
-  res.send();
+  let stmt = 'DELETE FROM join_event WHERE event_id = ? AND user_id = ?';
+  let values = [eventID, userID];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      console.log(err)
+      res.status(400).send({message: "error deleting event_join from db"});
+      return;
+    }
+    res.sendStatus(200);
+  });
 });
 
 //get all members (whether approved or not) of an event
 app.get('/membership/:id', async (req, res) => {
   let eventID = req.params.id;
   //todo: get all records from membership table with that eventID.
-  res.send(fakeMembership);
+  let stmt = `SELECT user_info.username FROM join_event
+                JOIN user_info ON join_event.user_id=user_info.user_id
+                WHERE join_event.event_id = ?;`;
+  let values = [eventID];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      res.status(400).send({message: "error querying db for members of event"});
+      return;
+    }
+    let usernames = []
+    for(record of results) {
+      usernames.push(record.username)
+    }
+    res.send(usernames)
+  });
 });
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));
