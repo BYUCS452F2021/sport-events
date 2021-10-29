@@ -27,7 +27,7 @@ export default {
     }
 
     let response = await axios.get("/joined", {
-      userID: this.$root.$data.userID,
+      userID: this.$root.$data.userID
     });
 
     for (let event of response.data) {
