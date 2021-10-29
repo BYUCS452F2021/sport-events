@@ -26,8 +26,7 @@ con.connect((err) => {
       creator_id            INT unsigned NOT NULL,              
       sport_name            VARCHAR(150) NOT NULL,               
       city                  VARCHAR(150) NOT NULL,               
-      time              TIME NOT NULL,               
-      date              DATE NOT NULL,                 
+      datetime              BIGINT unsigned NOT NULL,                 
       difficulty_lvl        VARCHAR(150) NOT NULL,    
       players_needed        INT unsigned NOT NULL,    
       PRIMARY KEY     (event_id)                                 
@@ -72,7 +71,7 @@ let fakeEvents = [
     sport: 'Basketball',
     city: 'Provo',
     dateTime: 1635277954,
-    difficulty: 3,
+    difficulty: "intermediate",
     playersNeeded: 6
   },
   {
@@ -82,7 +81,7 @@ let fakeEvents = [
     sport: 'Ultimate Frisbee',
     city: 'Orem',
     dateTime: 1635277000,
-    difficulty: 1,
+    difficulty: "beginning",
     playersNeeded: 14
   },
   {
@@ -92,7 +91,7 @@ let fakeEvents = [
     sport: 'Hockey',
     city: 'Lehi',
     dateTime: 1635277111,
-    difficulty: 8,
+    difficulty: "hard",
     playersNeeded: 11
   },
 ];
@@ -163,7 +162,28 @@ app.post('/login', async (req, res) => {
 //get upcoming events
 app.get('/upcoming', async (req, res) => {
   //todo: find all events not yet passed, join with user table, return it
-  res.send(fakeEvents);
+  let now = new Date().getTime();
+  let stmt = 'SELECT sport_events.*, user_info.username FROM sport_events JOIN user_info ON sport_events.creator_id=user_info.user_id WHERE sport_events.datetime > ?;';
+  let values = [now];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      res.status(400).send({message: "error querying db for upcoming events"});
+      return;
+    }
+    let events = []
+    for(record of results) {
+      events.push({
+        eventID: record.event_id,
+        creatorUsername: record.username,
+        sport: record.sport_name,
+        city: record.city,
+        dateTime: record.datetime,
+        difficulty: record.difficulty_lvl,
+        playersNeeded: record.players_needed
+      })
+    }
+    res.send(events)
+  });
 });
 
 //get events I have joined
@@ -184,7 +204,16 @@ app.post('/event', async (req, res) => {
     difficulty: req.body.difficulty,
     playersNeeded: req.body.playersNeeded
   };
-  res.send();
+  let stmt = 'INSERT INTO sport_events (creator_id, sport_name, city, datetime, difficulty_lvl, players_needed) VALUES(?,?,?,?,?,?);';
+  let values = [newEvent.creatorID, newEvent.sport, newEvent.city, newEvent.dateTime, newEvent.difficulty, newEvent.playersNeeded];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      console.log(err)
+      res.status(400).send({message: "error inserting event into db"});
+      return;
+    }
+    res.sendStatus(200);
+  });
 });
 
 //edit event
