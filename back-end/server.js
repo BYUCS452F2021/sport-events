@@ -15,9 +15,9 @@ con.connect((err) => {
 
   let createTables = `CREATE TABLE IF NOT EXISTS user_info(
       user_id              INT unsigned NOT NULL AUTO_INCREMENT,
-      username             VARCHAR(150) NOT NULL,               
+      username             VARCHAR(150) NOT NULL UNIQUE,               
       password             VARCHAR(150) NOT NULL,               
-      email                VARCHAR(150) NOT NULL,               
+      email                VARCHAR(150) NOT NULL UNIQUE,               
       PRIMARY KEY     (user_id)                                 
     );`;
   let createTables2 = `
@@ -119,10 +119,19 @@ let fakeMembership = [
 app.post('/register', async (req, res) => {
   let user = {
     username: req.body.username,
-    password: req.body.password
+    password: req.body.password,
+    email: req.body.email
   };
   //todo: put user in the db. if username already exists, send failure message. otherwise, send userID of new user.
-  res.send({userID: 1});
+  let stmt = 'INSERT INTO user_info (username, password, email) VALUES(?,?,?);';
+  let values = [user.username, user.password, user.email];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      res.status(400).send({message: "username already taken"});
+      return;
+    }
+    res.send({userID: results.insertId});
+  });
 });
 
 //login
@@ -132,7 +141,23 @@ app.post('/login', async (req, res) => {
     password: req.body.password
   };
   //todo: check to see if credentials exist in the db (and they match). If yes, send userID of user, else send failure.
-  res.send({userID: 1});
+  let stmt = 'SELECT user_id, password FROM user_info WHERE username = ?;';
+  let values = [credentials.username];
+  await con.query(stmt, values, (err, results, fields) => {
+    if (err) {
+      res.status(400).send({message: "unkown error"});
+      return;
+    }
+    if(results.length == 0) {
+      res.status(400).send({message: "incorrect credentials"});
+      return;
+    }
+    if (results[0].password == credentials.password) {
+      res.send({userID: results[0].user_id});
+      return;
+    }
+    res.status(400).send({message: "incorrect credentials"});
+  });
 });
 
 //get upcoming events
