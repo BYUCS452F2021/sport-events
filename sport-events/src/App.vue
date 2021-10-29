@@ -45,7 +45,10 @@
 export default {
   methods: {
     logout() {
-      this.$root.$data.user = undefined;
+      this.$root.$data.userID = undefined;
+      if (this.$data.$route != "/") {
+        this.$router.path.push({ path: "/"});
+      }
     },
   },
 }

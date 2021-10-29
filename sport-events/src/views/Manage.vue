@@ -15,11 +15,6 @@ export default {
   name: 'Home',
   components: {
   },
-  created() {
-    if (!this.$root.$data.userID) {
-      this.$router.push("/")
-    }
-  },
   data() {
       return {
         items: [
@@ -27,6 +22,11 @@ export default {
 
         ]
       }
-    }
+    },
+    created() {
+      if (!this.$root.$data.userID) {
+        this.$router.push("/")
+      }
+    },
 }
 </script>
