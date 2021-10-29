@@ -113,7 +113,7 @@ export default {
               this.form.city = "";
               this.form.time = "";
               this.form.difficulty_level = null;
-              this.form.playersNeeded = "";
+              this.form.players_needed = "";
             } catch(error) {
               console.log(error);
             }

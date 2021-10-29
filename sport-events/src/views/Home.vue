@@ -14,7 +14,8 @@
 <script>
 // @ is an alias to /src
 import Login from '../components/Login'
-
+import axios from "axios";
+import moment from "moment"
 export default {
   name: 'Home',
   components: {
@@ -23,13 +24,24 @@ export default {
 
   data() {
       return {
-        items: [
-          { sport_name: '', date: '', time: '', difficulty_level: '', players_needed: '' },
-        ],
+        items: [],
+        fields: ["Creator Username", "Sport", "City", "Date Time", "Difficulty", "Players Needed"],
         text: "",
       }
     },
+  async created() {
+    try {
+      let response = await axios.get("/upcoming");
+      for (let event of response.data) {
+        let eventDate = new Date(event.dateTime * 1000);
+        event.dateTime = moment(eventDate).format('MMMM Do YYYY, h:mm:ss a');
+        this.items.push(event);
+      }
 
+    } catch(error) {
+      console.log(error);
+    }
+  },
   computed: {
     not_logged_in() {
       if (this.$root.$data.userID) {
@@ -37,6 +49,6 @@ export default {
       }
       return true;
     }
-  }
+  },
 }
 </script>
