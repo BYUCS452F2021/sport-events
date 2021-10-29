@@ -77,7 +77,7 @@ export default {
         async onSubmit(event) {
             event.preventDefault();
             try {
-              let response = await axios.post("/login", {
+              let response = await axios.post("/register", {
                 username: this.form.username,
                 password: this.form.password,
                 email: this.form.email
