@@ -102,10 +102,18 @@ export default {
               await axios.post("/event", {
                 userID: this.$root.$data.userID,
                 sport: this.form.sport_name,
-                datetime: this.form.date.getTime(),
+                city: this.form.city,
+                dateTime: this.form.date.getTime(),
                 difficulty: this.form.difficulty_level,
                 playersNeeded: this.form.players_needed
               })
+
+              this.form.sport_name = "";
+              this.form.date = "";
+              this.form.city = "";
+              this.form.time = "";
+              this.form.difficulty_level = null;
+              this.form.playersNeeded = "";
             } catch(error) {
               console.log(error);
             }
