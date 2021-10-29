@@ -168,9 +168,9 @@ app.get('/upcoming', async (req, res) => {
 });
 
 //get events I have joined
-app.get('/joined', async (req, res) => {
+app.get('/joined/:id', async (req, res) => {
   //todo: get events based on event membership table (approved only)
-  let userID = req.body.userID;
+  let userID = req.params.id;
   let stmt = `SELECT sport_events.*, user_info.username FROM join_event 
                 JOIN sport_events ON join_event.event_id=sport_events.event_id 
                 JOIN user_info ON sport_events.creator_id=user_info.user_id
@@ -223,8 +223,8 @@ app.post('/event', async (req, res) => {
 });
 
 //get all events created by a particular user
-app.get('/event', async (req, res) => {
-  let userID = req.body.userID;
+app.get('/event/:id', async (req, res) => {
+  let userID = req.params.id;
   let stmt = `SELECT sport_events.*, user_info.username FROM sport_events 
                 JOIN user_info ON sport_events.creator_id=user_info.user_id
                 WHERE sport_events.creator_id = ?;`;
