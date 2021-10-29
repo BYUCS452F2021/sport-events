@@ -20,7 +20,8 @@
                 id="date"
                 style="text-align: left;"
                 v-model="form.date"
-                class="form-input">
+                class="form-input"
+                value-as-date>
                 </b-form-datepicker>
 
                 <b-form-timepicker
@@ -44,10 +45,18 @@
                 class="form-input">
                 </b-form-input>
 
-                <b-button
+                <b-button v-if="disableButton"
                 variant="primary"
                 id="btn"
-                type="submit">
+                type="submit"
+                disabled>
+                    submit
+                </b-button>
+                <b-button v-else
+                variant="primary"
+                id="btn"
+                type="submit"
+                disabled>
                     submit
                 </b-button>
             </b-form>
@@ -56,12 +65,13 @@
 </template>
 
 <script>
+import axios from "axios";
 export default {
     name: 'Create',
     components: {
     },
     created() {
-      if (!this.$root.$data.user) {
+      if (!this.$root.$data.userID) {
         this.$router.push("/")
       }
     },
@@ -84,10 +94,31 @@ export default {
         }
     },
     methods: {
-        onSubmit(event) {
+        async onSubmit(event) {
             event.preventDefault();
-            alert(JSON.stringify(this.form));
+            try {
+              let timeArray = this.form.time.split(":");
+              this.form.date.setHours(timeArray[0], timeArray[1], timeArray[2]);
+              await axios.post("/event", {
+                userID: this.$root.$data.userID,
+                sport: this.form.sport_name,
+                datetime: this.form.date,
+                difficulty: this.form.difficulty_level,
+                playersNeeded: this.form.players_needed
+              })
+            } catch(error) {
+              console.log(error);
+            }
       },
+    },
+    computed: {
+      disableButton() {
+        if (!this.form.sport_name || !this.form.city || !this.form.date || !this.form.time || !this.form.difficulty_level
+          || !this.form.players_needed) {
+            return true
+        }
+        return false;
+      }
     }
 }
 </script>

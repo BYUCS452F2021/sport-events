@@ -42,16 +42,15 @@ export default {
         }
     },
     methods: {
-        onSubmit(event) {
+        async onSubmit(event) {
             event.preventDefault();
             try {
-              let response = axios.post("/login", {
+              let response = await axios.post("/login", {
                 username: this.form.username,
                 password: this.form.password
                });
 
-               this.$root.$data.user = response.data
-               this.$router.push("/");
+               this.$root.$data.userID = response.data.userID
             } catch(error) {
               console.log(error)
             }

@@ -16,7 +16,7 @@ export default {
   components: {
   },
   created() {
-    if (!this.$root.$data.user) {
+    if (!this.$root.$data.userID) {
       this.$router.push("/")
     }
   },

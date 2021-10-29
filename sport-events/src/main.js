@@ -16,7 +16,12 @@ Vue.use(BootstrapVue)
 // Optionally install the BootstrapVue icon components plugin
 Vue.use(IconsPlugin)
 
+let data = {
+  userID: undefined
+}
+
 new Vue({
   router,
+  data,
   render: h => h(App)
 }).$mount('#app')

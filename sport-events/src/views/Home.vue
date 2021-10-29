@@ -23,12 +23,20 @@ export default {
 
   data() {
       return {
-        not_logged_in: true,
         items: [
           { sport_name: '', date: '', time: '', difficulty_level: '', players_needed: '' },
         ],
         text: "",
       }
+    },
+
+  computed: {
+    not_logged_in() {
+      if (this.$root.$data.userID) {
+        return false;
+      }
+      return true;
     }
+  }
 }
 </script>
