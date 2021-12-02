@@ -333,9 +333,10 @@ app.post('/login', async (req, res) => {
 app.delete('/membership/:eventId/:userId', async (req, res) => {
   try {
     const membership = JoinEvent.deleteOne({
-      event_id: eventId,
-      user_id: userId
+      event_id: req.params.eventId,
+      user_id: req.params.userId
     })
+    res.sendStatus(200)
   } catch(error) {
     res.status(500).send({message: "server error"})
     return
