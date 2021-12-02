@@ -112,10 +112,10 @@ app.post('/register', async (req, res) => {
   console.log(req.body.username)
   console.log(req.body.password)
   console.log(req.body.email)
-  // if (!req.body.username || !req.body.password || !req.body.email) {
-  //   res.status(400).send({message: "missing request info"})
-  //   return
-  // }
+  if (!req.body.username || !req.body.password || !req.body.email) {
+    res.status(400).send({message: "missing request info"})
+    return
+  }
 
   try {
     let user = await User.findOne({
@@ -144,10 +144,10 @@ app.post('/register', async (req, res) => {
 
 //login
 app.post('/login', async (req, res) => {
-  // if (!req.body.username || !req.body.password) {
-  //   res.status(400).send({message: "missing request info"})
-  //   return
-  // }
+  if (!req.body.username || !req.body.password) {
+    res.status(400).send({message: "missing request info"})
+    return
+  }
 
   try {
     const user = await User.findOne({
@@ -307,61 +307,62 @@ app.post('/login', async (req, res) => {
 //   });
 // });
 //
-// let create_join_event_record = (res, eventID, userID) => {
-//   let stmt = 'INSERT INTO join_event (event_id, user_id) VALUES(?,?);';
-//   let values = [eventID, userID];
-//   con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       console.log(err)
-//       res.status(400).send({message: "error inserting event_join into db"});
-//       return;
-//     }
-//     res.sendStatus(200);
-//   });
-// }
-//
-// //request to join event
-// app.post('/membership', async (req, res) => {
-//   let newMemberRequest = {
-//     eventID: req.body.eventID,
-//     userID: req.body.userID,
-//   };
-//   create_join_event_record(res, newMemberRequest.eventID, newMemberRequest.userID)
-// });
-//
+let create_join_event_record = (res, eventID, userID) => {
+  try {
+    let event = await Event.findOne({
+      _id: eventID
+    })
+    let user = await User.findOne({
+      _id: userID
+    })
+    if(!event || !user) {
+      res.status(400).send({message: "unable to insert join event because event or user does not exist"})
+      return
+    }
+    let membership = new JoinEvent({
+      eventId: event,
+      userId: user
+    })
+    await membership.save()
+    res.sendStatus(200)
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+}
+
+//request to join event
+app.post('/membership', async (req, res) => {
+  create_join_event_record(res, req.body.eventID, req.body.userID)
+});
+
 //manage event membership
 app.delete('/membership/:eventId/:userId', async (req, res) => {
   try {
-    const membership = JoinEvent.deleteOne({
+    const membership = await JoinEvent.deleteOne({
       event_id: req.params.eventId,
       user_id: req.params.userId
     })
     res.sendStatus(200)
   } catch(error) {
     res.status(500).send({message: "server error"})
-    return
   }
 });
 
-// //get all members (whether approved or not) of an event
-// app.get('/membership/:id', async (req, res) => {
-//   let eventID = req.params.id;
-//   //todo: get all records from membership table with that eventID.
-//   let stmt = `SELECT user_info.username FROM join_event
-//                 JOIN user_info ON join_event.user_id=user_info.user_id
-//                 WHERE join_event.event_id = ?;`;
-//   let values = [eventID];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       res.status(400).send({message: "error querying db for members of event"});
-//       return;
-//     }
-//     let usernames = []
-//     for(record of results) {
-//       usernames.push(record.username)
-//     }
-//     res.send(usernames)
-//   });
-// });
+//get all members (whether approved or not) of an event
+app.get('/membership/:id', async (req, res) => {
+  try {
+    const membership = await JoinEvent.find({
+      event_id: req.params.id,
+    })
+    let usernames = []
+    console.log(membership)
+    for(record of membership) {
+      usernames.push(record.userId.username)
+    }
+    res.send(usernames)
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+});
 
 app.listen(3000, () => console.log('Server listening on port 3000!'));
