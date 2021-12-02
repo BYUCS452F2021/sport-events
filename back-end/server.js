@@ -14,13 +14,34 @@ const userSchema = new mongoose.Schema({
   email: String,
 });
 
-// create a User model from the User schema
-const User = mongoose.model('User', userSchema);
+const eventSchema = new mongoose.Schema({
+  creatorId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  },
+  sport_name: String,
+  city: String,
+  datetime: Number,
+  difficulty_lvl: String,
+  players_needed: Number,
+})
 
-// con.connect((err) => {
-//   if(err) throw err;
-//   console.log("connected to mysql db");
-//
+const joinSchema = new mongoose.Schema({
+  eventId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Event'
+  },
+  userId: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User'
+  },
+})
+
+// create models from the schemas
+const User = mongoose.model('User', userSchema);
+const Event = mongoose.model('Event', eventSchema)
+const JoinEvent = mongoose.model('JoinEvent', joinSchema)
+
 //   let createTables = `CREATE TABLE IF NOT EXISTS user_info(
 //       user_id              INT unsigned NOT NULL AUTO_INCREMENT,
 //       username             VARCHAR(150) NOT NULL UNIQUE,
@@ -46,23 +67,6 @@ const User = mongoose.model('User', userSchema);
 //       user_id              INT unsigned NOT NULL,
 //       PRIMARY KEY     (request_id)
 //     );`;
-//
-//   con.query(createTables, function(err, results, fields) {
-//     if (err) {
-//       console.log(err.message);
-//     }
-//   });
-//   con.query(createTables2, function(err, results, fields) {
-//     if (err) {
-//       console.log(err.message);
-//     }
-//   });
-//   con.query(createTables3, function(err, results, fields) {
-//     if (err) {
-//       console.log(err.message);
-//     }
-//   });
-// });
 
 const app = express();
 app.use(bodyParser.json());
@@ -325,22 +329,19 @@ app.post('/login', async (req, res) => {
 //   create_join_event_record(res, newMemberRequest.eventID, newMemberRequest.userID)
 // });
 //
-// //manage event membership
-// app.delete('/membership', async (req, res) => {
-//   let eventID = req.body.eventID;
-//   let userID = req.body.userID;
-//   let stmt = 'DELETE FROM join_event WHERE event_id = ? AND user_id = ?';
-//   let values = [eventID, userID];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       console.log(err)
-//       res.status(400).send({message: "error deleting event_join from db"});
-//       return;
-//     }
-//     res.sendStatus(200);
-//   });
-// });
-//
+//manage event membership
+app.delete('/membership/:eventId/:userId', async (req, res) => {
+  try {
+    const membership = JoinEvent.deleteOne({
+      event_id: eventId,
+      user_id: userId
+    })
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+    return
+  }
+});
+
 // //get all members (whether approved or not) of an event
 // app.get('/membership/:id', async (req, res) => {
 //   let eventID = req.params.id;
