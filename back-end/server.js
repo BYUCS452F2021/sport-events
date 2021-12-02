@@ -109,9 +109,6 @@ let fakeEvents = [
 
 //register
 app.post('/register', async (req, res) => {
-  console.log(req.body.username)
-  console.log(req.body.password)
-  console.log(req.body.email)
   if (!req.body.username || !req.body.password || !req.body.email) {
     res.status(400).send({message: "missing request info"})
     return
@@ -132,13 +129,11 @@ app.post('/register', async (req, res) => {
       password: req.body.password,
       email: req.body.email,
     });
-    user.save()
+    await user.save()
     res.send({userID: user._id});
-    return;
   } catch(error) {
     console.log(error)
     res.status(500).send({message: "server error"})
-    return
   }
 });
 
@@ -155,16 +150,13 @@ app.post('/login', async (req, res) => {
       password: req.body.password
     })
 
-    console.log(user)
     if (!user) {
       res.status(400).send({message: "username or password incorrect"})
       return
     }
     res.send({userID: user._id});
-    return;
   } catch(error) {
     res.status(400).send({message: "server error"})
-    return
   }
 });
 
@@ -224,32 +216,32 @@ app.post('/login', async (req, res) => {
 //     res.send(events)
 //   });
 // });
-//
-// //create new event
-// app.post('/event', async (req, res) => {
-//   //todo: insert new event into table
-//   let newEvent = {
-//     creatorID: req.body.userID,
-//     sport: req.body.sport,
-//     city: req.body.city,
-//     dateTime: req.body.dateTime,
-//     difficulty: req.body.difficulty,
-//     playersNeeded: req.body.playersNeeded
-//   };
-//   let stmt = 'INSERT INTO sport_events (creator_id, sport_name, city, datetime, difficulty_lvl, players_needed) VALUES(?,?,?,?,?,?);';
-//   let values = [newEvent.creatorID, newEvent.sport, newEvent.city, newEvent.dateTime, newEvent.difficulty, newEvent.playersNeeded];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       console.log(err)
-//       res.status(400).send({message: "error inserting event into db"});
-//       return;
-//     }
-//     let event_id = results.insertId
-//     create_join_event_record(res, event_id, newEvent.creatorID);
-//   });
-//
-// });
-//
+
+//create new event
+app.post('/event', async (req, res) => {
+  //todo: insert new event into table
+  try {
+    let user = await User.findOne({
+      _id: req.body.userID
+    })
+    if(!user) {
+      res.status(400).send({message: "unable to insert event because associated user does not exist"})
+    }
+    let newEvent = new Event({
+      creatorId: user,
+      sport_name: req.body.sport,
+      city: req.body.city,
+      datetime: req.body.dateTime,
+      difficulty_lvl: req.body.difficulty,
+      players_needed: req.body.playersNeeded
+    });
+    await newEvent.save()
+    create_join_event_record(res, newEvent._id, newEvent.creatorId._id);
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+});
+
 // //get all events created by a particular user
 // app.get('/event/:id', async (req, res) => {
 //   let userID = req.params.id;
@@ -306,8 +298,8 @@ app.post('/login', async (req, res) => {
 //     res.sendStatus(200);
 //   });
 // });
-//
-let create_join_event_record = (res, eventID, userID) => {
+
+let create_join_event_record = async (res, eventID, userID) => {
   try {
     let event = await Event.findOne({
       _id: eventID
@@ -351,13 +343,18 @@ app.delete('/membership/:eventId/:userId', async (req, res) => {
 //get all members (whether approved or not) of an event
 app.get('/membership/:id', async (req, res) => {
   try {
+    let event = await Event.findOne({
+      _id: req.params.id
+    })
     const membership = await JoinEvent.find({
-      event_id: req.params.id,
+      event_id: event,
     })
     let usernames = []
-    console.log(membership)
     for(record of membership) {
-      usernames.push(record.userId.username)
+      let user = await User.findOne({
+        _id: record.userId
+      })
+      usernames.push(user.username)
     }
     res.send(usernames)
   } catch(error) {
