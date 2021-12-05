@@ -246,34 +246,33 @@ app.post('/event', async (req, res) => {
   }
 });
 
-// //get all events created by a particular user
-// app.get('/event/:id', async (req, res) => {
-//   let userID = req.params.id;
-//   let stmt = `SELECT sport_events.*, user_info.username FROM sport_events
-//                 JOIN user_info ON sport_events.creator_id=user_info.user_id
-//                 WHERE sport_events.creator_id = ?;`;
-//   let values = [userID];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       res.status(400).send({message: "error querying db for events created by user"});
-//       return;
-//     }
-//     let events = []
-//     for(record of results) {
-//       events.push({
-//         eventID: record.event_id,
-//         creator: record.username,
-//         sport: record.sport_name,
-//         city: record.city,
-//         dateTime: record.datetime,
-//         difficulty: record.difficulty_lvl,
-//         playersNeeded: record.players_needed
-//       })
-//     }
-//     res.send(events)
-//   });
-// });
-//
+//get all events created by a particular user
+app.get('/event/:id', async (req, res) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.id
+    })
+    const events = await Event.find({
+      creatorId: user
+    })
+    let ret = []
+    for(record of events) {
+      ret.push({
+        eventID: record._id,
+        creator: user.username,
+        sport: record.sport_name,
+        city: record.city,
+        dateTime: record.datetime,
+        difficulty: record.difficulty_lvl,
+        playersNeeded: record.players_needed
+      })
+    }
+    res.send(ret)
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+});
+
 // //edit event
 // app.put('/event/:id', async (req, res) => {
 //   //todo: find event with eventID, update it.
