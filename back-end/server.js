@@ -156,37 +156,38 @@ app.post('/login', async (req, res) => {
     }
     res.send({userID: user._id});
   } catch(error) {
-    res.status(400).send({message: "server error"})
+    res.status(500).send({message: "server error"})
   }
 });
 
-// //get upcoming events
-// app.get('/upcoming', async (req, res) => {
-//   //todo: find all events not yet passed, join with user table, return it
-//   let now = new Date().getTime();
-//   let stmt = 'SELECT sport_events.*, user_info.username FROM sport_events JOIN user_info ON sport_events.creator_id=user_info.user_id WHERE sport_events.datetime > ?;';
-//   let values = [now];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       res.status(400).send({message: "error querying db for upcoming events"});
-//       return;
-//     }
-//     let events = []
-//     for(record of results) {
-//       events.push({
-//         eventID: record.event_id,
-//         creator: record.username,
-//         sport: record.sport_name,
-//         city: record.city,
-//         dateTime: record.datetime,
-//         difficulty: record.difficulty_lvl,
-//         playersNeeded: record.players_needed
-//       })
-//     }
-//     res.send(events)
-//   });
-// });
-//
+//get upcoming events
+app.get('/upcoming', async (req, res) => {
+  let now = new Date().getTime();
+  try {
+    const events = await Event.find({
+      datetime: {$gt: now}
+    })
+    let ret = []
+    for(record of events) {
+      let user = await User.findOne({
+        _id: record.creatorId
+      })
+      ret.push({
+        eventID: record._id,
+        creator: user.username,
+        sport: record.sport_name,
+        city: record.city,
+        dateTime: record.datetime,
+        difficulty: record.difficulty_lvl,
+        playersNeeded: record.players_needed
+      })
+    }
+    res.send(ret)
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+});
+
 // //get events I have joined
 // app.get('/joined/:id', async (req, res) => {
 //   //todo: get events based on event membership table (approved only)
