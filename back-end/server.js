@@ -188,35 +188,38 @@ app.get('/upcoming', async (req, res) => {
   }
 });
 
-// //get events I have joined
-// app.get('/joined/:id', async (req, res) => {
-//   //todo: get events based on event membership table (approved only)
-//   let userID = req.params.id;
-//   let stmt = `SELECT sport_events.*, user_info.username FROM join_event
-//                 JOIN sport_events ON join_event.event_id=sport_events.event_id
-//                 JOIN user_info ON sport_events.creator_id=user_info.user_id
-//                 WHERE join_event.user_id = ?;`;
-//   let values = [userID];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       res.status(400).send({message: "error querying db for my joined events"});
-//       return;
-//     }
-//     let events = []
-//     for(record of results) {
-//       events.push({
-//         eventID: record.event_id,
-//         creator: record.username,
-//         sport: record.sport_name,
-//         city: record.city,
-//         dateTime: record.datetime,
-//         difficulty: record.difficulty_lvl,
-//         playersNeeded: record.players_needed
-//       })
-//     }
-//     res.send(events)
-//   });
-// });
+//get events I have joined
+app.get('/joined/:id', async (req, res) => {
+  try {
+    const user = await User.findOne({
+      _id: req.params.id
+    })
+    const joins = await JoinEvent.find({
+      userId: user
+    })
+    let ret = []
+    for(record of joins) {
+      let joinedEvent = await Event.findOne({
+        _id: record.eventId
+      })
+      let creator = await User.findOne({
+        _id: joinedEvent.creatorId
+      })
+      ret.push({
+        eventID: joinedEvent._id,
+        creator: creator.username,
+        sport: joinedEvent.sport_name,
+        city: joinedEvent.city,
+        dateTime: joinedEvent.datetime,
+        difficulty: joinedEvent.difficulty_lvl,
+        playersNeeded: joinedEvent.players_needed
+      })
+    }
+    res.send(ret)
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+});
 
 //create new event
 app.post('/event', async (req, res) => {
