@@ -273,34 +273,23 @@ app.get('/event/:id', async (req, res) => {
   }
 });
 
-// //edit event
-// app.put('/event/:id', async (req, res) => {
-//   //todo: find event with eventID, update it.
-//   let eventID = req.params.id;
-//   let updatedEvent = {
-//     sport: req.body.sport,
-//     city: req.body.city,
-//     dateTime: req.body.dateTime,
-//     difficulty: req.body.difficulty,
-//     playersNeeded: req.body.playersNeeded
-//   };
-//   let stmt = `UPDATE sport_events SET
-//                 players_needed = ?,
-//                 sport_name = ?,
-//                 city = ?,
-//                 datetime = ?,
-//                 difficulty_lvl = ?
-//                 WHERE event_id = ?;`;
-//   let values = [updatedEvent.playersNeeded, updatedEvent.sport, updatedEvent.city, updatedEvent.dateTime, updatedEvent.difficulty, eventID];
-//   await con.query(stmt, values, (err, results, fields) => {
-//     if (err) {
-//       console.log(err)
-//       res.status(400).send({message: "error updating event"});
-//       return;
-//     }
-//     res.sendStatus(200);
-//   });
-// });
+//edit event
+app.put('/event/:id', async (req, res) => {
+  try {
+    let event = await Event.findOne({
+      _id: req.params.id
+    })
+    event.sport_name = req.body.sport
+    event.city = req.body.city
+    event.datetime = req.body.dateTime
+    event.difficulty_lvl = req.body.difficulty
+    event.players_needed = req.body.playersNeeded
+    await event.save()
+    res.sendStatus(200)
+  } catch(error) {
+    res.status(500).send({message: "server error"})
+  }
+});
 
 let create_join_event_record = async (res, eventID, userID) => {
   try {
