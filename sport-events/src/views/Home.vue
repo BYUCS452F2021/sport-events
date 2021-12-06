@@ -90,9 +90,17 @@ export default {
 
     },
     async leaveEvent(event) {
+      console.log("event");
+      console.log(event);
       let userID = this.$root.$data.userID;
+      let eventId = "";
+      if (event.eventID) {
+        eventId = event.eventID
+      } else {
+        eventId = event._id;
+      }
       try {
-        await axios.delete("/membership/" + event._id + "/" + userID);
+        await axios.delete("/membership/" + eventId + "/" + userID);
         console.log(event);
         event.isJoined = false;
         this.$forceUpdate()
