@@ -107,15 +107,12 @@ app.get('/upcoming', async (req, res) => {
   try {
     const events = await Event.find({
       datetime: {$gt: now}
-    })
+    }).populate("creatorId")
     let ret = []
     for(record of events) {
-      let user = await User.findOne({
-        _id: record.creatorId
-      })
       ret.push({
         eventID: record._id,
-        creator: user.username,
+        creator: record.creatorId.username,
         sport: record.sport_name,
         city: record.city,
         dateTime: record.datetime,
@@ -137,23 +134,20 @@ app.get('/joined/:id', async (req, res) => {
     })
     const joins = await JoinEvent.find({
       userId: user
+    }).populate({
+      path: "eventId",
+      populate: {path: "creatorId"}
     })
     let ret = []
     for(record of joins) {
-      let joinedEvent = await Event.findOne({
-        _id: record.eventId
-      })
-      let creator = await User.findOne({
-        _id: joinedEvent.creatorId
-      })
       ret.push({
-        eventID: joinedEvent._id,
-        creator: creator.username,
-        sport: joinedEvent.sport_name,
-        city: joinedEvent.city,
-        dateTime: joinedEvent.datetime,
-        difficulty: joinedEvent.difficulty_lvl,
-        playersNeeded: joinedEvent.players_needed
+        eventID: record.eventId._id,
+        creator: record.eventId.creatorId.username,
+        sport: record.eventId.sport_name,
+        city: record.eventId.city,
+        dateTime: record.eventId.datetime,
+        difficulty: record.eventId.difficulty_lvl,
+        playersNeeded: record.eventId.players_needed
       })
     }
     res.send(ret)
@@ -271,6 +265,7 @@ app.delete('/membership/:eventId/:userId', async (req, res) => {
     })
     if(!membership) {
       res.status(400).send({message: "eventId or userId does not exist"})
+      return
     }
     res.sendStatus(200)
   } catch(error) {
