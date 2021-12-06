@@ -57,7 +57,7 @@ export default {
     async removeFromJoined(event) {
       let userID = this.$root.$data.userID;
       try {
-        await axios.delete("/membership/" + event._id + "/" + userID);
+        await axios.delete("/membership/" + event.eventID + "/" + userID);
         console.log(event);
         this.items.splice(event.index, 1);
         this.$forceUpdate()
