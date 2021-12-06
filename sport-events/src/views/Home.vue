@@ -94,7 +94,7 @@ export default {
       try {
         await axios.delete("/membership/" + event._id + "/" + userID);
         console.log(event);
-        this.items.splice(event.index, 1);
+        event.isJoined = false;
         this.$forceUpdate()
       } catch(error) {
         console.log(error);
