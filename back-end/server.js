@@ -262,11 +262,16 @@ app.post('/membership', async (req, res) => {
 
 //manage event membership
 app.delete('/membership/:eventId/:userId', async (req, res) => {
+  console.log("eventId " + req.params.eventId)
+  console.log("userId " + req.params.userId)
   try {
     const membership = await JoinEvent.deleteOne({
-      event_id: req.params.eventId,
-      user_id: req.params.userId
+      eventId: req.params.eventId,
+      userId: req.params.userId
     })
+    if(!membership) {
+      res.status(400).send({message: "eventId or userId does not exist"})
+    }
     res.sendStatus(200)
   } catch(error) {
     res.status(500).send({message: "server error"})
@@ -280,7 +285,7 @@ app.get('/membership/:id', async (req, res) => {
       _id: req.params.id
     })
     const membership = await JoinEvent.find({
-      event_id: event,
+      eventId: event,
     }).populate("userId");
     console.log("membership");
     console.log(membership);
