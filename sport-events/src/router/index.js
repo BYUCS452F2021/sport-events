@@ -25,7 +25,7 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../components/Login.vue')
+    component: () => import('../views/Login.vue')
   },
   {
     path: '/manage',
@@ -36,12 +36,12 @@ const routes = [
     path: '/joined',
     name: 'Joined',
     component: Joined
-  }, 
+  },
   {
-    path: '/create', 
-    name: 'Create', 
+    path: '/create',
+    name: 'Create',
     component: Create
-  }, 
+  },
   {
     path: '/create-account',
     name: 'Create_Account',

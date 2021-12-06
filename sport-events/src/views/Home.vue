@@ -1,7 +1,6 @@
 <template>
   <div class="home">
-    <Login v-if="not_logged_in"></Login>
-    <div v-else>
+    <div>
       <b-card>
       <br>
       <h2>Upcoming Events</h2>
@@ -23,16 +22,10 @@
 </template>
 
 <script>
-// @ is an alias to /src
-import Login from '../components/Login'
 import axios from "axios";
 import moment from "moment"
 export default {
   name: 'Home',
-  components: {
-    Login
-  },
-
   data() {
       return {
         items: [],
@@ -43,14 +36,12 @@ export default {
       }
     },
   computed: {
-    not_logged_in() {
-      if (this.$root.$data.userID) {
-        return false;
-      }
-      return true;
-    },
   },
   async created() {
+    if (!this.$root.$data.userID) {
+      this.$router.push("/login");
+    }
+
     try {
       let response = await axios.get("/joined/" + this.$root.$data.userID);
 
@@ -99,19 +90,16 @@ export default {
 
     },
     async leaveEvent(event) {
+      let userID = this.$root.$data.userID;
       try {
-        await axios.delete("/membership", {
-          data: {
-          userID: this.$root.$data.userID,
-          eventID: event.eventID
-        }
-        })
-        event.isJoined = false;
+        await axios.delete("/membership/" + event._id + "/" + userID);
+        console.log(event);
+        this.items.splice(event.index, 1);
+        this.$forceUpdate()
       } catch(error) {
         console.log(error);
       }
-
-    }
+    },
   },
 }
 </script>

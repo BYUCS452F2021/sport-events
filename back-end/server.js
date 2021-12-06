@@ -42,70 +42,11 @@ const User = mongoose.model('User', userSchema);
 const Event = mongoose.model('Event', eventSchema)
 const JoinEvent = mongoose.model('JoinEvent', joinSchema)
 
-//   let createTables = `CREATE TABLE IF NOT EXISTS user_info(
-//       user_id              INT unsigned NOT NULL AUTO_INCREMENT,
-//       username             VARCHAR(150) NOT NULL UNIQUE,
-//       password             VARCHAR(150) NOT NULL,
-//       email                VARCHAR(150) NOT NULL UNIQUE,
-//       PRIMARY KEY     (user_id)
-//     );`;
-//   let createTables2 = `
-//     CREATE TABLE IF NOT EXISTS sport_events(
-//       event_id INT unsigned NOT NULL AUTO_INCREMENT,
-//       creator_id            INT unsigned NOT NULL,
-//       sport_name            VARCHAR(150) NOT NULL,
-//       city                  VARCHAR(150) NOT NULL,
-//       datetime              BIGINT unsigned NOT NULL,
-//       difficulty_lvl        VARCHAR(150) NOT NULL,
-//       players_needed        INT unsigned NOT NULL,
-//       PRIMARY KEY     (event_id)
-//     );`;
-//   let createTables3 = `
-//     CREATE TABLE IF NOT EXISTS join_event(
-//       request_id           INT unsigned NOT NULL AUTO_INCREMENT,
-//       event_id             INT unsigned NOT NULL,
-//       user_id              INT unsigned NOT NULL,
-//       PRIMARY KEY     (request_id)
-//     );`;
-
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: false
 }));
-
-let fakeEvents = [
-  {
-    eventID: 1,
-    creatorID: 1,
-    creatorUsername: 'malcolm_reynolds',
-    sport: 'Basketball',
-    city: 'Provo',
-    dateTime: 1635277954,
-    difficulty: "intermediate",
-    playersNeeded: 6
-  },
-  {
-    eventID: 2,
-    creatorID: 1,
-    creatorUsername: 'malcolm_reynolds',
-    sport: 'Ultimate Frisbee',
-    city: 'Orem',
-    dateTime: 1635277000,
-    difficulty: "beginning",
-    playersNeeded: 14
-  },
-  {
-    eventID: 3,
-    creatorID: 2,
-    creatorUsername: 'kaylee_frye',
-    sport: 'Hockey',
-    city: 'Lehi',
-    dateTime: 1635277111,
-    difficulty: "hard",
-    playersNeeded: 11
-  },
-];
 
 //register
 app.post('/register', async (req, res) => {
@@ -340,7 +281,9 @@ app.get('/membership/:id', async (req, res) => {
     })
     const membership = await JoinEvent.find({
       event_id: event,
-    })
+    }).populate("eventId");
+    console.log("membership");
+    console.log(membership);
     let usernames = []
     for(record of membership) {
       let user = await User.findOne({
