@@ -4,10 +4,10 @@
     <br>
     <h2>Manage My Events</h2>
     <br>
-    <b-table striped hover :items="items" :fields="fields">
+    <b-table striped hover :items="items" :fields="fields" selectable @row-selected="triggerMembershipModal">
       <template #cell(remove)="row">
         <b-button @click="triggerEditModal(row)">
-          Edit Event
+          Edit Event Details
         </b-button>
       </template>
     </b-table>
@@ -58,6 +58,15 @@
           </b-form-input>
       </b-form>
     </b-modal>
+    <b-modal id="modal-2" title="Event Membership" hide-footer>
+      <b-table striped hover :items="members" :fields="membershipFields">
+        <template #cell(remove)="row">
+          <b-button @click="removeMembership(row)">
+            Remove
+          </b-button>
+        </template>
+      </b-table>
+    </b-modal>
   </div>
 </template>
 
@@ -83,6 +92,9 @@ export default {
             {value: 'intermediate', text: 'Intermediate'},
             {value: 'advanced', text: 'Advanced'}
         ],
+        selectedEvent: undefined,
+        members: [],
+        membershipFields: ["username", { key: 'remove', label: '' }]
       }
     },
     async created() {
@@ -126,6 +138,28 @@ export default {
         })
         this.editEvent.dateTime = this.editDate.getTime()
         this.editEvent.date = moment(this.editDate).format('MMMM Do YYYY, h:mm a');
+      },
+      async triggerMembershipModal(event) {
+        this.selectedEvent = event[0];
+        console.log(event);
+        try {
+          let response = await axios.get("/membership/" + event[0].eventID);
+          this.members = response.data;
+        } catch(error) {
+          console.log(error);
+        }
+
+        this.$bvModal.show("modal-2");
+      },
+      async removeMembership(row) {
+        let userId = row.item._id
+        let eventId = this.selectedEvent.eventID
+        try {
+          await axios.delete("/membership/" + eventId + "/" + userId);
+          this.members.splice(row.index, 1);
+        } catch(error) {
+          console.log(error);
+        }
       }
     }
 }

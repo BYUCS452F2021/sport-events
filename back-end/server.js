@@ -281,17 +281,14 @@ app.get('/membership/:id', async (req, res) => {
     })
     const membership = await JoinEvent.find({
       event_id: event,
-    }).populate("eventId");
+    }).populate("userId");
     console.log("membership");
     console.log(membership);
-    let usernames = []
+    let users = []
     for(record of membership) {
-      let user = await User.findOne({
-        _id: record.userId
-      })
-      usernames.push(user.username)
+      users.push(record.userId)
     }
-    res.send(usernames)
+    res.send(users)
   } catch(error) {
     res.status(500).send({message: "server error"})
   }
