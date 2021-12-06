@@ -84,6 +84,7 @@ export default {
           eventID: event.eventID
         })
         event.isJoined = true;
+        event.playersNeeded -= 1;
       } catch(error) {
         console.log(error);
       }
@@ -103,6 +104,7 @@ export default {
         await axios.delete("/membership/" + eventId + "/" + userID);
         console.log(event);
         event.isJoined = false;
+        event.playersNeeded += 1;
         this.$forceUpdate()
       } catch(error) {
         console.log(error);

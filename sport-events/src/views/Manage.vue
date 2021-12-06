@@ -154,9 +154,12 @@ export default {
       async removeMembership(row) {
         let userId = row.item._id
         let eventId = this.selectedEvent.eventID
+        console.log("row");
+        console.log(row);
         try {
           await axios.delete("/membership/" + eventId + "/" + userId);
           this.members.splice(row.index, 1);
+          this.selectedEvent.playersNeeded += 1
         } catch(error) {
           console.log(error);
         }

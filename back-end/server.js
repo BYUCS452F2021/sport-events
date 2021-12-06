@@ -243,6 +243,8 @@ let create_join_event_record = async (res, eventID, userID) => {
       userId: user
     })
     await membership.save()
+    event.players_needed -= 1;
+    await event.save();
     res.sendStatus(200)
   } catch(error) {
     res.status(500).send({message: "server error"})
@@ -267,6 +269,11 @@ app.delete('/membership/:eventId/:userId', async (req, res) => {
       res.status(400).send({message: "eventId or userId does not exist"})
       return
     }
+    let event = await Event.findOne({
+      _id: req.params.eventId
+    });
+    event.players_needed += 1;
+    await event.save();
     res.sendStatus(200)
   } catch(error) {
     res.status(500).send({message: "server error"})
